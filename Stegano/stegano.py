@@ -31,11 +31,14 @@ def encryption(message: str, path: str) -> Image:
     width, height = img.size
     encoded = np.ndarray(pixels.shape, dtype=np.uint8)
 
+
     msg_bits = [bin(char)[2:].zfill(fbyte) for char in message.encode(encoding)] + ['0' * fbyte]
     bits_gen = (c for c in ''.join(msg_bits))
 
     print('Encrypting...')
     empty = False
+    before = []
+    after = []
     for y in range(width):
         for x in range(height):
             if empty:
@@ -43,17 +46,23 @@ def encryption(message: str, path: str) -> Image:
 
             else:
                 rgb_bitarray = rgb_pixels(pixels[x, y])
+                before.append([p for p in pixels[x, y]])
 
                 for color in rgb_bitarray:
                     if not empty and (bit := next(bits_gen, None)):
                         color.set(bit == '1', -1)
+
                     else:
                         empty = True
                         break
 
                 r, g, b = rgb_bitarray
                 encoded[x, y] = (r.uintle, g.uintle, b.uintle)
+                after.append((r.uintle, g.uintle, b.uintle))
 
+    print('Before: ', before)
+    print(' ')
+    print('After: ', after)
     sh1 = Image.fromarray(encoded)
     print('Mode: ' + sh1.mode)
     print('Generated image size: {}'.format(sh1.size))
@@ -69,6 +78,8 @@ def decryption(path: str) -> str:
     width, height = img.size
 
     print('Decrypting...')
+    print('Mode: ' + img.mode)
+    print('Generated image size: {}'.format(img.size))
     secrets = []
     counter = 0
     temp = ''
@@ -84,6 +95,7 @@ def decryption(path: str) -> str:
                     byte = int(temp, 2)
 
                     if byte == 0:
+                        #print(secrets)
                         return bytes(b for b in secrets).decode(encoding)
 
                     secrets += [byte]
