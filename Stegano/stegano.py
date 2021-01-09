@@ -39,14 +39,14 @@ def encryption(message: str, path: str, file_name: str) -> Image:
     empty = False
     before = []
     after = []
-    for y in range(height):
-        for x in range(width):
+    for x in range(height):
+        for y in range(width):
             if empty:
-                encoded[y, x] = pixels[y, x]
+                encoded[x, y] = pixels[x, y]
 
             else:
-                rgb_bitarray = rgb_pixels(pixels[y, x])
-                before.append([p for p in pixels[y, x]])
+                rgb_bitarray = rgb_pixels(pixels[x, y])
+                before.append([p for p in pixels[x, y]])
 
                 for color in rgb_bitarray:
                     if not empty and (bit := next(bits_gen, None)):
@@ -57,7 +57,7 @@ def encryption(message: str, path: str, file_name: str) -> Image:
                         break
 
                 r, g, b = rgb_bitarray
-                encoded[y, x] = (r.uintle, g.uintle, b.uintle)
+                encoded[x, y] = (r.uintle, g.uintle, b.uintle)
                 after.append((r.uintle, g.uintle, b.uintle))
 
     print('Before: ', before)
@@ -83,9 +83,9 @@ def decryption(path: str) -> str:
     secrets = []
     counter = 0
     temp = ''
-    for y in range(height):
-        for x in range(width):
-            rgb_bitarray = rgb_pixels(pixels[y, x])
+    for x in range(height):
+        for y in range(width):
+            rgb_bitarray = rgb_pixels(pixels[x, y])
 
             for color in rgb_bitarray:
                 temp += '1' if color[4] else '0'
